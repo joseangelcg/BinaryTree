@@ -9,7 +9,8 @@ void main(void){
     stNode *temp;
 
     root=BT_insertnode(8,root);
-    temp=BT_insertnode(9,root);
+    (void)BT_insertnode(9,root);
+    (void)BT_insertnode(7,root);
     
     BT_printnode(root);
 }
@@ -28,6 +29,7 @@ stNode* BT_insertnode(uint16_t data, stNode* p){
         while(1){
             
             if(data==p->data){
+                printf("Data %d already exists in tree\n",p->data);
                 return NULL; //Node exists
 
             }else if(data > p->data){
@@ -45,7 +47,15 @@ stNode* BT_insertnode(uint16_t data, stNode* p){
 
             }else{
                 //Data is inserted to the left of the node
-            
+                if(p->left==NULL){
+                    temp=BT_allocate();
+                    
+                    p->left=temp;
+                    temp->data=data;
+                    return temp;
+                }else{
+                    p=p->left;
+                } 
             }
         }
     }
