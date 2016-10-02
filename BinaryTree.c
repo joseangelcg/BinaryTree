@@ -10,13 +10,13 @@ void BT_postorder(stNode* p);
 stNode* BT_createNode(uint16_t data);
 
 stNode* BT_createNode(uint16_t data){
-    stNode temp=BT_allocate();
+    stNode* temp=BT_allocate();
     if(NULL!=temp){
         temp->data=data;
         temp->red=BT_TRUE;
         temp->left=NULL;
         temp->right=NULL;
-        temp->parent-NULL;
+        temp->parent=NULL;
     }
     return temp;
 }

@@ -14,7 +14,7 @@ typedef unsigned char BT_bool;
 
 typedef struct Node{
     uint16_t data;
-    BT_BOOL red;
+    BT_bool red;
     struct Node* left;
     struct Node* right;
     struct Node* parent;
