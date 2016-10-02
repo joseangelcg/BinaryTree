@@ -14,8 +14,10 @@ typedef unsigned char BT_bool;
 
 typedef struct Node{
     uint16_t data;
+    BT_BOOL red;
     struct Node* left;
     struct Node* right;
+    struct Node* parent;
 } stNode;
 
 stNode* BT_insertnode(uint16_t data, stNode* p);
