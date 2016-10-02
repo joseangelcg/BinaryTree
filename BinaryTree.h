@@ -5,7 +5,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#define BT_allocate() (stNode*)malloc(sizeof(stNode));
+#define BT_allocate() (stNode*)malloc(sizeof(stNode))
+#define BT_allocateRBT() (stRBT*)malloc(sizeof(stRBT))
 
 #define BT_FALSE    0
 #define BT_TRUE     1
@@ -20,8 +21,14 @@ typedef struct Node{
     struct Node* parent;
 } stNode;
 
-stNode* BT_insertnode(uint16_t data, stNode* p);
-stNode* BT_deletenode(uint16_t data, stNode* p);
-stNode* BT_searchnode(uint16_t data);
+typedef struct RBTree{
+    stNode* root;
+    stNode* nil;
+}stRBT;
+
+BT_bool BT_insertnode(uint16_t data, stRBT* p);
+BT_bool BT_deletenode(uint16_t data, stRBT* p);
+BT_bool BT_searchnode(uint16_t data);
+
 
 #endif
