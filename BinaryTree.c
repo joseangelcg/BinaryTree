@@ -34,14 +34,27 @@ stRBT* BT_createTree(void){
 void main(void){
 
     stRBT* myTree=BT_createTree();
+    stNode* aux;
 
+    BT_insertnode(7,myTree);
     BT_insertnode(5,myTree);
     BT_insertnode(9,myTree);
-    BT_insertnode(7,myTree);
     
     BT_inorder(myTree->root,myTree->nil); printf("\n");
     BT_preorder(myTree->root,myTree->nil); printf("\n");
     BT_postorder(myTree->root,myTree->nil); printf("\n");
+    
+    printf("Nil node:%p\n",myTree->nil);
+    aux=myTree->root;
+    printf("I'm: %p and My parent is %p\n",aux,aux->parent);
+    aux=aux->right;
+    printf("I'm: %p and My parent is %p\n",aux,aux->parent);
+    aux=(aux->parent)->left;
+    printf("I'm: %p and My parent is %p\n",aux,aux->parent);
+
+    printf("Search of 8:%d",BT_searchnode(8,myTree));
+    printf("Search of 9:%d",BT_searchnode(9,myTree));
+
 }
 
 BT_bool BT_insertnode(uint16_t data, stRBT* t){
@@ -70,7 +83,7 @@ BT_bool BT_insertnode(uint16_t data, stRBT* t){
 
                 //Data is inserted to the right of the node
                 if(aux->right==t->nil){
-                    
+                    toInsert->parent=aux;
                     aux->right=toInsert;
                     return BT_TRUE;
                 }else{
@@ -80,8 +93,7 @@ BT_bool BT_insertnode(uint16_t data, stRBT* t){
             }else{
                 //Data is inserted to the left of the node
                 if(aux->left==t->nil){
-                    //temp=BT_allocate();
-                    
+                    toInsert->parent=aux;
                     aux->left=toInsert;
                     return BT_TRUE;
                 }else{
@@ -92,6 +104,23 @@ BT_bool BT_insertnode(uint16_t data, stRBT* t){
     }
 }
 
+BT_bool BT_searchnode(uint16_t data, stRBT* t){
+    stNode* aux=t->root;
+
+    while(aux != t->nil){
+        
+        if(data == aux->data) return BT_TRUE;
+
+        if(data < aux->data){
+            //search in left subtree
+            aux=aux->left;
+        }else if(data > aux->data){
+            //search in right subtree
+            aux=aux->right;
+        }
+    }
+    return BT_FALSE;
+}
 
 void BT_inorder(stNode* p,stNode* nil){
     if(p->left!=nil){

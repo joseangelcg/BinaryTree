@@ -26,9 +26,9 @@ typedef struct RBTree{
     stNode* nil;
 }stRBT;
 
-BT_bool BT_insertnode(uint16_t data, stRBT* p);
-BT_bool BT_deletenode(uint16_t data, stRBT* p);
-BT_bool BT_searchnode(uint16_t data);
+BT_bool BT_insertnode(uint16_t data, stRBT* t);
+BT_bool BT_deletenode(uint16_t data, stRBT* t);
+BT_bool BT_searchnode(uint16_t data, stRBT* t);
 
 
 #endif
