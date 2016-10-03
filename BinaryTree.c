@@ -7,6 +7,8 @@ void BT_preorder(stNode* p,stNode* nil);
 void BT_postorder(stNode* p,stNode* nil);
 stNode* BT_createNode(uint16_t data,stRBT* t);
 stRBT* BT_createTree(void);
+void BT_leftRotate(stRBT* t, stNode* x);
+void BT_rightRotate(stRBT* t, stNode* y);
 
 stNode* BT_createNode(uint16_t data,stRBT* t){
     stNode* temp=BT_allocate();
@@ -36,25 +38,15 @@ void main(void){
     stRBT* myTree=BT_createTree();
     stNode* aux;
 
-    BT_insertnode(7,myTree);
     BT_insertnode(5,myTree);
+    BT_insertnode(7,myTree);
     BT_insertnode(9,myTree);
     
-    BT_inorder(myTree->root,myTree->nil); printf("\n");
     BT_preorder(myTree->root,myTree->nil); printf("\n");
-    BT_postorder(myTree->root,myTree->nil); printf("\n");
-    
-    printf("Nil node:%p\n",myTree->nil);
-    aux=myTree->root;
-    printf("I'm: %p and My parent is %p\n",aux,aux->parent);
-    aux=aux->right;
-    printf("I'm: %p and My parent is %p\n",aux,aux->parent);
-    aux=(aux->parent)->left;
-    printf("I'm: %p and My parent is %p\n",aux,aux->parent);
-
-    printf("Search of 8:%d",BT_searchnode(8,myTree));
-    printf("Search of 9:%d",BT_searchnode(9,myTree));
-
+    BT_leftRotate(myTree,myTree->root);
+    BT_preorder(myTree->root,myTree->nil); printf("\n");
+    BT_rightRotate(myTree,myTree->root);
+    BT_preorder(myTree->root,myTree->nil); printf("\n"); 
 }
 
 BT_bool BT_insertnode(uint16_t data, stRBT* t){
@@ -156,4 +148,41 @@ void BT_postorder(stNode* p,stNode* nil){
         BT_postorder(p->right,nil);
     }
     printf("|%d| ",p->data);
+}
+
+
+void BT_leftRotate(stRBT* t, stNode* x){
+    stNode* y=x->right;
+
+    x->right=y->left; //move y left subtree into x right's
+    if(y->left!= t->nil) (y->left)->parent=x; //in case y left subtree is nil, link x as a parent of that subtree
+    y->parent=x->parent; //set y parent as x parent. X parent will be y after all
+    
+    if(x->parent==t->nil) 
+            t->root=y; //if x parent is nil, x is the root, so need to fix this
+    else if(x==(x->parent)->left) 
+            (x->parent)->left=y; //if x is left child, lets replace it for y
+    else if(x==(x->parent)->right)
+            (x->parent)->right=y;//if x is right child, lets replace it for y
+
+    y->left=x;
+    x->parent=y; //final fixes
+}
+
+void BT_rightRotate(stRBT* t, stNode* y){
+    stNode* x=y->left;
+    
+    y->left=x->right;
+    if(x->right!=t->nil) (x->right)->parent=y;
+    x->parent=y->parent;
+
+    if(y->parent==t->nil)
+            t->root=x;
+    else if(y==(y->parent)->left)
+            (y->parent)->left=x;
+    else if(y==(y->parent)->right)
+            (y->parent)->right=x;
+
+    x->right=y;
+    y->parent=x;
 }
