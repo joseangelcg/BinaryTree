@@ -1,12 +1,13 @@
-
 #include "BinaryTree.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
 
 
 static void BT__inordera(stNode* p,stNode* nil);
 static void BT__preordera(stNode* p,stNode* nil);
 static void BT__postordera(stNode* p,stNode* nil);
-
-static stNode* BT__createNode(uint16_t data,stRBT* t);
 
 static void BT__leftRotate(stRBT* t, stNode* x);
 static void BT__rightRotate(stRBT* t, stNode* y);
@@ -37,14 +38,14 @@ void main(void){
 }
 
 /**************************************************************************
-****************************PRIVATE FUNCTIONS****************************** 
- **************************************************************************/
+****************************PUBLIC FUNCTIONS****************************** 
+***************************************************************************/
 
 stRBT* BT_createTree(void){
    stRBT* temp=BT_allocateRBT();
 
    if(NULL!=temp){
-        stNode* node=BT_allocate();
+        stNode* node = BTNode_createEmptyNode();
         if(NULL!=node) temp->nil = temp->root = node; //node was allocated
         else temp=NULL; //node couldn't be allocated. Error
    }
@@ -55,7 +56,7 @@ stRBT* BT_createTree(void){
 
 BT_bool BT_insertnode(uint16_t data, stRBT* t){
     
-    stNode* toInsert=BT__createNode(data,t);
+    stNode* toInsert=BTNode_createNode(data,t->nil);
 
     //Unsuccesfull memory allocation of new node.
     if(NULL==toInsert) return BT_FALSE;
@@ -136,18 +137,6 @@ void BT_postorder(stRBT* t){
 /**************************************************************************
 ****************************PRIVATE FUNCTIONS****************************** 
  **************************************************************************/
-static stNode* BT__createNode(uint16_t data,stRBT* t){
-    stNode* temp=BT_allocate();
-    if(NULL!=temp){
-        temp->data=data;
-        temp->red=BT_TRUE;
-        temp->left=t->nil;
-        temp->right=t->nil;
-        temp->parent=t->nil;
-    }
-    return temp;
-}
-
 static void BT__inordera(stNode* p,stNode* nil){
     if(p->left!=nil){
         BT__inordera(p->left,nil);
@@ -189,7 +178,7 @@ static void BT__leftRotate(stRBT* t, stNode* x){
     stNode* y=x->right;
 
     x->right=y->left; //move y left subtree into x right's
-    if(y->left!= t->nil) (y->left)->parent=x; //in case y left subtree is nil, link x as a parent of that subtree
+    if(y->left != t->nil) (y->left)->parent=x; //in case y left subtree is not nil, link x as a parent of that subtree
     y->parent=x->parent; //set y parent as x parent. X parent will be y after all
     
     if(x->parent==t->nil) 
