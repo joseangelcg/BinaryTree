@@ -13,6 +13,7 @@
 typedef struct RBTree{
     stNode* root;
     stNode* nil;
+    uint16_t size;
 }stRBT;
 
 stRBT* BT_createTree(void);
@@ -25,4 +26,5 @@ void BT_inorder(stRBT* t);
 void BT_preorder(stRBT* t);
 void BT_postorder(stRBT* t);
 
+void BT_printTree(stRBT* t);
 #endif
