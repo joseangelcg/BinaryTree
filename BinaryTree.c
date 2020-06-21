@@ -188,6 +188,9 @@ void BT_printTree(stRBT* t)
                 printf("\n");
             }
         }
+    /* Delete queue used for printing */
+    NodeQueue_delete(q);
+
     }
 
     /* Print a last new line */
