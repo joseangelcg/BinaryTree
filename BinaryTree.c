@@ -17,8 +17,8 @@ static void BT__insertFixup(stRBT* t, stNode* node);
 
 static uint8_t BT__log2(uint16_t num);
 
-static uint16_t BT__SubTreeminimum(stNode* n, stRBT* t);
-static uint16_t BT__SubTreemaximum(stNode* n, stRBT* t);
+static stNode* BT__SubTreeminimum(stNode* n, stRBT* t);
+static stNode* BT__SubTreemaximum(stNode* n, stRBT* t);
 
 /**************************************************************************
 ****************************PUBLIC FUNCTIONS****************************** 
@@ -196,12 +196,16 @@ void BT_printTree(stRBT* t)
 
 uint16_t BT_minimum(stRBT* t)
 {
-    return (BT__SubTreeminimum(t->root, t));
+    stNode* n;
+    n = BT__SubTreeminimum(t->root, t);
+    return ( n != NULL ? n->data : 0xFFFF);
 }
 
 uint16_t BT_maximum(stRBT* t)
 {
-    return (BT__SubTreemaximum(t->root, t));
+    stNode* n;
+    n = BT__SubTreemaximum(t->root, t);
+    return ( n != NULL ? n->data : 0xFFFF);
 }
 /**************************************************************************
 ****************************PRIVATE FUNCTIONS****************************** 
@@ -243,28 +247,26 @@ static void BT__postordera(stNode* p,stNode* nil){
 }
 
 
-static uint16_t BT__SubTreeminimum(stNode* n, stRBT* t)
+static stNode* BT__SubTreeminimum(stNode* n, stRBT* t)
 {
     if(n != t->nil){
         while(n->left != t-> nil)
             n = n->left;
-        return n->data;
+        return n;
     }
 
-    /* return 0xFFFF if NIL was the input node*/
-    return 0xFFFF;
+    return NULL;
 }
 
-static uint16_t BT__SubTreemaximum(stNode* n, stRBT* t)
+static stNode* BT__SubTreemaximum(stNode* n, stRBT* t)
 {
     if(n != t->nil){
         while(n->right != t-> nil)
             n = n->right;
-        return n->data;
+        return n;
     }
 
-    /* return 0xFFFF if NIL was the input node*/
-    return 0xFFFF;
+    return NULL;
 }
 
 static void BT__leftRotate(stRBT* t, stNode* x){
