@@ -16,31 +16,9 @@ static void BT__rightRotate(stRBT* t, stNode* y);
 static void BT__insertFixup(stRBT* t, stNode* node);
 
 static uint8_t BT__log2(uint16_t num);
-/************TEST MAIN*********************/
-void main(void){
 
-    stRBT* myTree=BT_createTree();
-    stNode* aux;
-
-    BT_insertnode(12,myTree);
-    BT_insertnode(32,myTree);
-    BT_insertnode(45,myTree);
-    BT_insertnode(76,myTree);
-    BT_insertnode(98,myTree);
-    BT_insertnode(23,myTree);
-    BT_insertnode(88,myTree);
-    BT_insertnode(67,myTree);
-    BT_insertnode(56,myTree);
-    BT_insertnode(87,myTree);
-    BT_insertnode(31,myTree);
-    BT_insertnode(99,myTree);
-    BT_insertnode(69,myTree);
-    BT_insertnode(78,myTree);
-    BT_insertnode(85,myTree);
-
-    //BT_inorder(myTree);
-    BT_printTree(myTree);
-}
+static uint16_t BT__SubTreeminimum(stNode* n, stRBT* t);
+static uint16_t BT__SubTreemaximum(stNode* n, stRBT* t);
 
 /**************************************************************************
 ****************************PUBLIC FUNCTIONS****************************** 
@@ -159,9 +137,75 @@ void BT_postorder(stRBT* t){
     printf("Tree size is: %d \n",t->size);
 }
 
+void BT_printTree(stRBT* t)
+{
+    stNode* n = t->root;
+    uint16_t elements = t->size;
+    uint16_t elem_cnt,level_cnt;
+
+    /*check that tree has something*/
+    if(elements > 0)
+    {
+        printf("The given tree has the following structure:\n");
+        printf("Tree size: %d\n", elements);
+        printf("Tree max levels (counted from 0): %d\n\n", BT__log2(elements)+1 );
+        stNodeQueue *q;
+        q = NodeQueue_create();
+
+        (void)NodeQueue_enqueue(q, n);
+        level_cnt =1;
+        elem_cnt= 0;
+
+        /*While tree has valid elements*/
+        while(elements)
+        {
+            /*dequeue element*/
+            n = NodeQueue_dequeue(q);
+
+            /*if not nil, decrement elemnts*/
+            if(n != t->nil) elements--;
+
+            /*Enqueue left and right nodes*/
+            (void)NodeQueue_enqueue(q, n->left);
+            (void)NodeQueue_enqueue(q, n->right);
+
+            /*print current element*/
+            if(n != t->nil)
+                printf("|%d, %d|",n->data, n->red);
+            else
+                printf("|NIL, 0|");
+
+            /*element was added to tree level*/
+            elem_cnt++;
+
+            if(elem_cnt == level_cnt)
+            {
+                /*current level was filled.
+                 * reset elem_cnt and double level_cnt*/
+                elem_cnt = 0;
+                level_cnt = level_cnt << 1;
+                /*print new line for new level*/
+                printf("\n");
+            }
+        }
+    }
+
+    /* Print a last new line */
+    printf("\n");
+}
+
+uint16_t BT_minimum(stRBT* t)
+{
+    return (BT__SubTreeminimum(t->root, t));
+}
+
+uint16_t BT_maximum(stRBT* t)
+{
+    return (BT__SubTreemaximum(t->root, t));
+}
 /**************************************************************************
 ****************************PRIVATE FUNCTIONS****************************** 
- **************************************************************************/
+***************************************************************************/
 static void BT__inordera(stNode* p,stNode* nil){
     if(p->left!=nil){
         BT__inordera(p->left,nil);
@@ -198,6 +242,30 @@ static void BT__postordera(stNode* p,stNode* nil){
     printf("|%d, %d| ",p->data, p->red);
 }
 
+
+static uint16_t BT__SubTreeminimum(stNode* n, stRBT* t)
+{
+    if(n != t->nil){
+        while(n->left != t-> nil)
+            n = n->left;
+        return n->data;
+    }
+
+    /* return 0xFFFF if NIL was the input node*/
+    return 0xFFFF;
+}
+
+static uint16_t BT__SubTreemaximum(stNode* n, stRBT* t)
+{
+    if(n != t->nil){
+        while(n->right != t-> nil)
+            n = n->right;
+        return n->data;
+    }
+
+    /* return 0xFFFF if NIL was the input node*/
+    return 0xFFFF;
+}
 
 static void BT__leftRotate(stRBT* t, stNode* x){
     stNode* y=x->right;
@@ -311,59 +379,6 @@ static uint8_t BT__log2(uint16_t num)
     else
     {
         return 0xFF;
-    }
-}
-void BT_printTree(stRBT* t)
-{
-    stNode* n = t->root;
-    uint16_t elements = t->size;
-    uint16_t elem_cnt,level_cnt;
-
-    /*check that tree has something*/
-    if(elements > 0)
-    {
-        printf("The given tree has the following structure:\n");
-        printf("Tree size: %d\n", elements);
-        printf("Tree max levels (counted from 0): %d\n\n", BT__log2(elements)+1 );
-        stNodeQueue *q;
-        q = NodeQueue_create();
-
-        (void)NodeQueue_enqueue(q, n);
-        level_cnt =1;
-        elem_cnt= 0;
-
-        /*While tree has valid elements*/
-        while(elements)
-        {
-            /*dequeue element*/
-            n = NodeQueue_dequeue(q);
-
-            /*if not nil, decrement elemnts*/
-            if(n != t->nil) elements--;
-
-            /*Enqueue left and right nodes*/
-            (void)NodeQueue_enqueue(q, n->left);
-            (void)NodeQueue_enqueue(q, n->right);
-
-            /*print current element*/
-            if(n != t->nil)
-                printf("|%d, %d|",n->data, n->red);
-            else
-                printf("|NIL, 0|");
-
-            /*element was added to tree level*/
-            elem_cnt++;
-
-            if(elem_cnt == level_cnt)
-            {
-                /*current level was filled.
-                 * reset elem_cnt and double level_cnt*/
-                elem_cnt = 0;
-                level_cnt = level_cnt << 1;
-                /*print new line for new level*/
-                printf("\n");
-            }
-        }
     }
 }
 

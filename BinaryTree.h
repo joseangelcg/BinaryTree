@@ -27,4 +27,7 @@ void BT_preorder(stRBT* t);
 void BT_postorder(stRBT* t);
 
 void BT_printTree(stRBT* t);
+
+uint16_t BT_minimum(stRBT* t);
+uint16_t BT_maximum(stRBT* t);
 #endif
