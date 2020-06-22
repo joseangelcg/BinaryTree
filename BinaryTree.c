@@ -1,4 +1,5 @@
 #include "BinaryTree.h"
+#include "BTNode.h"
 #include "NodeQueue.h"
 
 #include <stdio.h>
@@ -15,11 +16,17 @@ static void BT__rightRotate(stRBT* t, stNode* y);
 
 static void BT__insertFixup(stRBT* t, stNode* node);
 
+static void BT__deleteNode(stRBT* t, stNode* node);
+static void BT__deleteFixup(stRBT* t, stNode* node);
+
 static uint8_t BT__log2(uint16_t num);
 
 static stNode* BT__SubTreeminimum(stNode* n, stRBT* t);
 static stNode* BT__SubTreemaximum(stNode* n, stRBT* t);
 
+stNode* BT__searchNode(uint16_t data, stRBT* t);
+
+static void BT__Transplant(stRBT* t, stNode* u, stNode* v);
 /**************************************************************************
 ****************************PUBLIC FUNCTIONS****************************** 
 ***************************************************************************/
@@ -46,7 +53,7 @@ stRBT* BT_createTree(void){
 
 
 
-BT_bool BT_insertnode(uint16_t data, stRBT* t){
+BT_bool BT_insertNode(uint16_t data, stRBT* t){
     
     stNode* toInsert=BTNode_createNode(data,t->nil);
 
@@ -100,22 +107,31 @@ BT_bool BT_insertnode(uint16_t data, stRBT* t){
     }
 }
 
-BT_bool BT_searchnode(uint16_t data, stRBT* t){
-    stNode* aux=t->root;
+BT_bool BT_deleteNode(uint16_t data, stRBT* t)
+{
+    stNode* aux;
 
-    while(aux != t->nil){
-        
-        if(data == aux->data) return BT_TRUE;
+    aux = BT__searchNode(data, t);
 
-        if(data < aux->data){
-            //search in left subtree
-            aux=aux->left;
-        }else if(data > aux->data){
-            //search in right subtree
-            aux=aux->right;
-        }
+    if( aux != t->nil)
+    {
+        /* data exists. Delete it */
+        BT__deleteNode(t, aux);
+        return BT_TRUE;
     }
-    return BT_FALSE;
+    else
+    {
+        /*data does not exist. Return false */
+        return BT_FALSE;
+    }
+}
+
+BT_bool BT_searchNode(uint16_t data, stRBT* t)
+{
+    stNode* aux;
+    aux = BT__searchNode(data, t);
+
+    return (aux != t->nil ? BT_TRUE : BT_FALSE);
 }
 
 
@@ -199,16 +215,46 @@ void BT_printTree(stRBT* t)
 
 uint16_t BT_minimum(stRBT* t)
 {
-    stNode* n;
-    n = BT__SubTreeminimum(t->root, t);
-    return ( n != NULL ? n->data : 0xFFFF);
+    if( t != NULL)
+    {
+        stNode* n;
+        n = BT__SubTreeminimum(t->root, t);
+        if(n != t->nil)
+        {
+            return ( n->data );
+        }
+        else
+        {
+            /* tree is empty */
+            printf("BT_minimum: Tree is empty\n");
+            return 0xFFFF;
+        }
+    }
+
+    printf("BT_minimum: Tree does not exist\n");
+    return 0xFFFF;
 }
 
 uint16_t BT_maximum(stRBT* t)
 {
-    stNode* n;
-    n = BT__SubTreemaximum(t->root, t);
-    return ( n != NULL ? n->data : 0xFFFF);
+    if( t != NULL)
+    {
+        stNode* n;
+        n = BT__SubTreemaximum(t->root, t);
+        if(n != t->nil)
+        {
+            return ( n->data );
+        }
+        else
+        {
+            /* tree is empty */
+            printf("BT_maximum: Tree is empty\n");
+            return 0xFFFF;
+        }
+    }
+
+    printf("BT_maximum: Tree does not exist\n");
+    return 0xFFFF;
 }
 /**************************************************************************
 ****************************PRIVATE FUNCTIONS****************************** 
@@ -252,24 +298,34 @@ static void BT__postordera(stNode* p,stNode* nil){
 
 static stNode* BT__SubTreeminimum(stNode* n, stRBT* t)
 {
-    if(n != t->nil){
-        while(n->left != t-> nil)
-            n = n->left;
-        return n;
-    }
-
-    return NULL;
+    while(n != t->nil && n->left != t-> nil)
+        n = n->left;
+    return n;
 }
 
 static stNode* BT__SubTreemaximum(stNode* n, stRBT* t)
 {
-    if(n != t->nil){
-        while(n->right != t-> nil)
-            n = n->right;
-        return n;
-    }
+    while(n != t->nil && n->right != t-> nil)
+        n = n->right;
+    return n;
+}
 
-    return NULL;
+stNode* BT__searchNode(uint16_t data, stRBT* t){
+    stNode* aux=t->root;
+
+    while(aux != t->nil){
+        
+        if(data == aux->data) return aux;
+
+        if(data < aux->data){
+            //search in left subtree
+            aux=aux->left;
+        }else if(data > aux->data){
+            //search in right subtree
+            aux=aux->right;
+        }
+    }
+    return t->nil;
 }
 
 static void BT__leftRotate(stRBT* t, stNode* x){
@@ -370,6 +426,237 @@ static void BT__insertFixup(stRBT* t, stNode* node){
     (t->root)->red = BT_FALSE;
 }
 
+static void BT__deleteNode(stRBT* t, stNode* node)
+{
+    stNode* x;
+    stNode* y;
+    BT_bool y_original_color = node->red;
+    
+    if( node->left == t->nil)
+    {
+        /* Deleted node has right child or Nil childs
+         * Transplant right child subtree to deleted node
+         * This works even if right child is also NIL */
+        x = node->right;
+        BT__Transplant(t, node, node->right);
+    }
+    else if( node->right == t->nil )
+    {
+        /* Deleted node has left child 
+         * Transplant left child subtree to deleted node */
+        x = node->left;
+        BT__Transplant(t, node, node->left);
+    }
+    else
+    {
+        /* Deleted node has two children
+         * Determine succesor and make 
+         * proper adjustments */
+        
+        /*obtain sucessor of node*/
+        y = BT__SubTreeminimum(node->right, t);
+        y_original_color = y-> red;
+
+        /* Obtain right child of succesor */
+        x = y->right;
+
+        if( node == y->parent)
+        {
+            /* Sucessor is a direct child of removed node
+             * force x to mantain y as parent */
+            x->parent = y;
+        }
+        else
+        {
+            /* Sucessor is not a direct child of removed node*/
+            /* Transplant right subtree of sucessor to Sucessor spot*/
+            BT__Transplant(t, y, y->right);
+
+            /* Sucessor adopts right child from deleted node */
+            y->right = node->right;
+            (y->right)->parent = y;
+        }
+
+        /* Transplant sucessor to deleted node spot */
+        BT__Transplant(t, node, y);
+        
+        /* Sucessor adopts left child from deleted node */
+        y->left = node->left;
+        (y->left)->parent = y;
+        /* Keep color from removed node */
+        y->red = node->red;
+    }
+
+    /* Free memory of deleted node */
+    BTNode_freeNode(node);
+
+    /* if a Black node was removed/moved, run fixup function */
+    if(y_original_color == BT_FALSE)
+        BT__deleteFixup(t, x);
+
+    /*update tree size */
+    (t->size)--;
+}
+
+static void BT__deleteFixup(stRBT* t, stNode* node)
+{
+    while((node != t->root) && (node->red == BT_FALSE))
+    {
+        stNode* bro;
+
+        if(node == (node->parent)->left)
+        {
+            /* Node is a left child */
+
+            /* Get right brother */
+            bro = (node->parent)->right;
+
+            /* If bro is red and node is black
+             * then bro has to turn black and parent to red*/
+            if(bro->red == BT_TRUE)
+            {
+                /* Set bro color to black*/
+                bro->red = BT_FALSE;
+                
+                /* set parent color to red */
+                (node->parent)->red = BT_TRUE;
+                
+                /* Rotate parent to left*/
+                BT__leftRotate(t, node->parent);
+
+                /* As parent was rotated, update brother*/
+                bro = (node->parent)->right;
+            }
+
+            /* if new brother has two black childs, then he must be red*/
+            if( ((bro->left)->red == BT_FALSE) && ((bro->right)->red == BT_FALSE))
+            {
+                /* Bro has two black childs, he must be black*/
+                bro->red = BT_TRUE;
+
+                /* Pass problem to parent*/
+                node = node->parent;
+            }
+            else
+            {
+                /* Bro has one or two red childs. 
+                 * We are almost done*/ 
+                
+                /* Enter here only if
+                 * Bro has a right black child */
+                if( (bro->right)->red = BT_FALSE)
+                {
+                    /* Bro right child is black*/
+
+                    /* Set bro left child to black*/
+                    (bro->left)->red = BT_FALSE;
+
+                    /* Bro must be red */
+                    bro->red = BT_TRUE;
+
+                    /* Rotate bro to the right*/
+                    BT__rightRotate(t, bro);
+
+                    /* As bro was rotated, update brother*/
+                    bro = (node->parent)->right;
+                }
+
+                /* Pass color of parent to bro */
+                bro->red = (node->parent)->red;
+                
+                /* Set parent color to black */
+                (node->parent)->red = BT_FALSE;
+
+                /* Set bro right child color to black*/
+                (bro->right)->red = BT_FALSE;
+
+                /* Rotate parent to left */
+                BT__leftRotate(t, node->parent);
+
+                /* set node to root to foce end of while*/
+                node = t->root;
+            }
+        }
+        else
+        {
+            /* Node is a right child */
+
+            /* Get left brother */
+            bro = (node->parent)->left;
+
+            /* If bro is red and node is black
+             * then bro has to turn black and parent to red*/
+            if(bro->red == BT_TRUE)
+            {
+                /* Set bro color to black*/
+                bro->red = BT_FALSE;
+                
+                /* set parent color to red */
+                (node->parent)->red = BT_TRUE;
+                
+                /* Rotate parent to right*/
+                BT__rightRotate(t, node->parent);
+
+                /* As parent was rotated, update brother*/
+                bro = (node->parent)->left;
+            }
+
+            /* if new brother has two black childs, then he must be red*/
+            if( ((bro->left)->red == BT_FALSE) && ((bro->right)->red == BT_FALSE))
+            {
+                /* Bro has two black childs, he must be black*/
+                bro->red = BT_TRUE;
+
+                /* Pass problem to parent*/
+                node = node->parent;
+            }
+            else
+            {
+                /* Bro has one or two red childs. 
+                 * We are almost done*/ 
+                
+                /* Enter here only if
+                 * Bro has a left black child */
+                if( (bro->left)->red = BT_FALSE)
+                {
+                    /* Bro left child is black*/
+
+                    /* Set bro right child to black*/
+                    (bro->right)->red = BT_FALSE;
+
+                    /* Bro must be red */
+                    bro->red = BT_TRUE;
+
+                    /* Rotate bro to the left*/
+                    BT__leftRotate(t, bro);
+
+                    /* As bro was rotated, update brother*/
+                    bro = (node->parent)->left;
+                }
+
+                /* Pass color of parent to bro */
+                bro->red = (node->parent)->red;
+                
+                /* Set parent color to black */
+                (node->parent)->red = BT_FALSE;
+
+                /* Set bro left child color to black*/
+                (bro->left)->red = BT_FALSE;
+
+                /* Rotate parent to right */
+                BT__rightRotate(t, node->parent);
+
+                /* set node to root to foce end of while*/
+                node = t->root;
+            }
+            
+        }
+    }
+
+    /* Set node color to black */
+    node->red = BT_FALSE;
+}
+
 static uint8_t BT__log2(uint16_t num)
 {
     int8_t i8cnt;
@@ -387,3 +674,14 @@ static uint8_t BT__log2(uint16_t num)
     }
 }
 
+static void BT__Transplant(stRBT* t, stNode* u, stNode* v)
+{
+    if(u->parent == t->nil)
+        t->root = v;
+    else if(u == (u->parent)->left)
+        (u->parent)->left = v;
+    else
+        (u->parent)->right = v;
+
+    v->parent = u->parent;
+}
