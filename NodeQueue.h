@@ -17,6 +17,8 @@ typedef struct Queue{
 
 stNodeQueue* NodeQueue_create(void);
 
+void NodeQueue_delete(stNodeQueue* q);
+
 bool NodeQueue_enqueue(stNodeQueue* q, stNode* node);
 
 stNode* NodeQueue_dequeue(stNodeQueue* q);

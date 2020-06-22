@@ -1,4 +1,3 @@
-
 #include "BTNode.h"
 
 #define BT_allocate()       (stNode*)malloc(sizeof(stNode))
