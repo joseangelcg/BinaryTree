@@ -1,38 +1,47 @@
-#include "BinaryTree.h"
-#include "BTNode.h"
-#include "NodeQueue.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "types.h"
+#include "BTNode.h"
+#include "NodeQueue.h"
+#include "BinaryTree.h"
+
+#define BT_allocateRBT()    (pRBT)malloc(sizeof(stRBT))
+#define BT_freeRBT(a)       free(a)
+
+typedef struct RBTree{
+    stNode* root;
+    stNode* nil;
+    uint16_t size;
+}stRBT;
 
 static void BT__inordera(stNode* p,stNode* nil);
 static void BT__preordera(stNode* p,stNode* nil);
 static void BT__postordera(stNode* p,stNode* nil);
 
-static void BT__leftRotate(stRBT* t, stNode* x);
-static void BT__rightRotate(stRBT* t, stNode* y);
+static void BT__leftRotate(pRBT t, stNode* x);
+static void BT__rightRotate(pRBT t, stNode* y);
 
-static void BT__insertFixup(stRBT* t, stNode* node);
+static void BT__insertFixup(pRBT t, stNode* node);
 
-static void BT__deleteNode(stRBT* t, stNode* node);
-static void BT__deleteFixup(stRBT* t, stNode* node);
+static void BT__deleteNode(pRBT t, stNode* node);
+static void BT__deleteFixup(pRBT t, stNode* node);
 
 static uint8_t BT__log2(uint16_t num);
 
-static stNode* BT__SubTreeminimum(stNode* n, stRBT* t);
-static stNode* BT__SubTreemaximum(stNode* n, stRBT* t);
+static stNode* BT__SubTreeminimum(stNode* n, pRBT t);
+static stNode* BT__SubTreemaximum(stNode* n, pRBT t);
 
-stNode* BT__searchNode(uint16_t data, stRBT* t);
+stNode* BT__searchNode(uint16_t data, pRBT t);
 
-static void BT__Transplant(stRBT* t, stNode* u, stNode* v);
+static void BT__Transplant(pRBT t, stNode* u, stNode* v);
 /**************************************************************************
 ****************************PUBLIC FUNCTIONS****************************** 
 ***************************************************************************/
 
-stRBT* BT_createTree(void){
-   stRBT* temp=BT_allocateRBT();
+pRBT BT_createTree(void){
+   pRBT temp=BT_allocateRBT();
 
    if(NULL!=temp){
         stNode* node = BTNode_createEmptyNode();
@@ -53,7 +62,7 @@ stRBT* BT_createTree(void){
 
 
 
-BT_bool BT_insertNode(uint16_t data, stRBT* t){
+BT_bool BT_insertNode(uint16_t data, pRBT t){
     
     stNode* toInsert=BTNode_createNode(data,t->nil);
 
@@ -107,7 +116,7 @@ BT_bool BT_insertNode(uint16_t data, stRBT* t){
     }
 }
 
-BT_bool BT_deleteNode(uint16_t data, stRBT* t)
+BT_bool BT_deleteNode(uint16_t data, pRBT t)
 {
     stNode* aux;
 
@@ -126,7 +135,7 @@ BT_bool BT_deleteNode(uint16_t data, stRBT* t)
     }
 }
 
-BT_bool BT_searchNode(uint16_t data, stRBT* t)
+BT_bool BT_searchNode(uint16_t data, pRBT t)
 {
     stNode* aux;
     aux = BT__searchNode(data, t);
@@ -135,25 +144,25 @@ BT_bool BT_searchNode(uint16_t data, stRBT* t)
 }
 
 
-void BT_inorder(stRBT* t){
+void BT_inorder(pRBT t){
     BT__inordera(t->root,t->nil);
     printf("\n");
     printf("Tree size is: %d \n",t->size);
 }
 
-void BT_preorder(stRBT* t){
+void BT_preorder(pRBT t){
     BT__preordera(t->root,t->nil);
     printf("\n");
     printf("Tree size is: %d \n",t->size);
 }
 
-void BT_postorder(stRBT* t){
+void BT_postorder(pRBT t){
     BT__postordera(t->root,t->nil);
     printf("\n");
     printf("Tree size is: %d \n",t->size);
 }
 
-void BT_printTree(stRBT* t)
+void BT_printTree(pRBT t)
 {
     stNode* n = t->root;
     uint16_t elements = t->size;
@@ -213,7 +222,7 @@ void BT_printTree(stRBT* t)
     printf("\n");
 }
 
-uint16_t BT_minimum(stRBT* t)
+uint16_t BT_minimum(pRBT t)
 {
     if( t != NULL)
     {
@@ -235,7 +244,7 @@ uint16_t BT_minimum(stRBT* t)
     return 0xFFFF;
 }
 
-uint16_t BT_maximum(stRBT* t)
+uint16_t BT_maximum(pRBT t)
 {
     if( t != NULL)
     {
@@ -296,21 +305,21 @@ static void BT__postordera(stNode* p,stNode* nil){
 }
 
 
-static stNode* BT__SubTreeminimum(stNode* n, stRBT* t)
+static stNode* BT__SubTreeminimum(stNode* n, pRBT t)
 {
     while(n != t->nil && n->left != t-> nil)
         n = n->left;
     return n;
 }
 
-static stNode* BT__SubTreemaximum(stNode* n, stRBT* t)
+static stNode* BT__SubTreemaximum(stNode* n, pRBT t)
 {
     while(n != t->nil && n->right != t-> nil)
         n = n->right;
     return n;
 }
 
-stNode* BT__searchNode(uint16_t data, stRBT* t){
+stNode* BT__searchNode(uint16_t data, pRBT t){
     stNode* aux=t->root;
 
     while(aux != t->nil){
@@ -328,7 +337,7 @@ stNode* BT__searchNode(uint16_t data, stRBT* t){
     return t->nil;
 }
 
-static void BT__leftRotate(stRBT* t, stNode* x){
+static void BT__leftRotate(pRBT t, stNode* x){
     stNode* y=x->right;
 
     x->right=y->left; //move y left subtree into x right's
@@ -346,7 +355,7 @@ static void BT__leftRotate(stRBT* t, stNode* x){
     x->parent=y; //final fixes
 }
 
-static void BT__rightRotate(stRBT* t, stNode* y){
+static void BT__rightRotate(pRBT t, stNode* y){
     stNode* x=y->left;
     
     y->left=x->right;
@@ -364,7 +373,7 @@ static void BT__rightRotate(stRBT* t, stNode* y){
     y->parent=x;
 }
 
-static void BT__insertFixup(stRBT* t, stNode* node){
+static void BT__insertFixup(pRBT t, stNode* node){
 
     stNode* x = node;
     while((x->parent)->red)
@@ -426,7 +435,7 @@ static void BT__insertFixup(stRBT* t, stNode* node){
     (t->root)->red = BT_FALSE;
 }
 
-static void BT__deleteNode(stRBT* t, stNode* node)
+static void BT__deleteNode(pRBT t, stNode* node)
 {
     stNode* x;
     stNode* y;
@@ -498,7 +507,7 @@ static void BT__deleteNode(stRBT* t, stNode* node)
     (t->size)--;
 }
 
-static void BT__deleteFixup(stRBT* t, stNode* node)
+static void BT__deleteFixup(pRBT t, stNode* node)
 {
     while((node != t->root) && (node->red == BT_FALSE))
     {
@@ -674,7 +683,7 @@ static uint8_t BT__log2(uint16_t num)
     }
 }
 
-static void BT__Transplant(stRBT* t, stNode* u, stNode* v)
+static void BT__Transplant(pRBT t, stNode* u, stNode* v)
 {
     if(u->parent == t->nil)
         t->root = v;

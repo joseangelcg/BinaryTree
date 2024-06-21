@@ -1,7 +1,6 @@
 #ifndef _NODEQUEUE_H
 #define _NODEQUEUE_H
 
-#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 

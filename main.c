@@ -4,7 +4,7 @@
 /************TEST MAIN*********************/
 void main(void){
 
-    stRBT* myTree=BT_createTree();
+    pRBT myTree=BT_createTree();
 
     BT_insertNode(12,myTree);
     BT_insertNode(32,myTree);
