@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 
 #include "types.h"
 #include "BTNode.h"
@@ -187,12 +186,20 @@ void BT_printTree(pRBT t)
             /*dequeue element*/
             n = NodeQueue_dequeue(q);
 
-            /*if not nil, decrement elemnts*/
-            if(n != t->nil) elements--;
-
             /*Enqueue left and right nodes*/
-            (void)NodeQueue_enqueue(q, n->left);
-            (void)NodeQueue_enqueue(q, n->right);
+            if(n != t->nil)
+            {
+                /*if not nil, decrement elemnts*/
+                elements--;
+                (void)NodeQueue_enqueue(q, n->left);
+                (void)NodeQueue_enqueue(q, n->right);
+            }
+            else
+            {
+                //enqueue 2 nil nodes to emulate empty level
+                (void)NodeQueue_enqueue(q, t->nil);
+                (void)NodeQueue_enqueue(q, t->nil);
+            }
 
             /*print current element*/
             if(n != t->nil)
