@@ -7,8 +7,9 @@ target_sources( BinaryTree PRIVATE
 )
 
 target_include_directories( BinaryTree
-    PUBLIC
+    PRIVATE
     Node/
+    PUBLIC
     .
 )
 
