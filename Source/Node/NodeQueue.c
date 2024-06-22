@@ -1,3 +1,4 @@
+#include <stdlib.h>
 
 #include "BTNode.h"
 #include "NodeQueue.h"

@@ -1,13 +1,7 @@
 #ifndef _BTNODE_H
 #define _BTNODE_H
 
-#include <stdlib.h>
-#include <stdint.h>
-
-#define BT_FALSE    0
-#define BT_TRUE     1
-
-typedef unsigned char BT_bool;
+#include "types.h"
 
 typedef struct Node{
     uint16_t data;
