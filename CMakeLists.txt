@@ -1,5 +1,7 @@
+#set required version
 cmake_minimum_required(VERSION 3.13)
 
+#name
 project(BinaryTree LANGUAGES C)
 
 add_subdirectory(Source)
