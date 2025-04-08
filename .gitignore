@@ -1,5 +1,9 @@
 #ignore build paths
 build*/
+.cache/
 
 #ignore exe files
 *.exe
+
+#ignore tags
+tags
